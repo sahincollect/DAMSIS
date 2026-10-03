@@ -79,6 +79,8 @@ uvicorn main:app --reload --port 8000
 - Gerçek yol ağı üzerinden rota hesabı.
 - Kişisel sağlık verisi için KVKK uyumu, rıza yönetimi ve şifreli saklama. Bu veri türü gerçek bir dağıtımda en hassas bileşendir.
 
-## Lisans
+## Telif Hakkı (Copyright)
 
-Henüz bir lisans seçilmedi.
+© 2026. Tüm Hakları Saklıdır (All Rights Reserved).
+
+Bu projenin (DAMSİS - Deprem Acil Müdahale Sistemi) kaynak kodları, konsepti, tasarımı ve simülasyon mantığı izinsiz kopyalanamaz, çoğaltılamaz veya ticari amaçlarla kullanılamaz. Proje, kişisel bir eğitim ve araştırma çalışması olup tüm hakları geliştiricisine aittir.
