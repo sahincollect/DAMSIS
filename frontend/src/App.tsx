@@ -1,92 +1,120 @@
 import { useEffect, useState } from 'react'
+import { MapContainer, TileLayer, CircleMarker, Marker, Popup } from 'react-leaflet'
+import 'leaflet/dist/leaflet.css'
+import L from 'leaflet'
 import './App.css'
 
-interface Resident {
-  name: string;
-  age: number;
-  medical_info: string;
+interface Building {
+  id: string; lat: number; lng: number; status: string; address: string;
 }
 
-interface Building {
-  id: string;
-  lat: number;
-  lng: number;
-  address: string;
-  floors: number;
-  status: string;
-  last_updated: string;
-  residents: Resident[];
+interface Team {
+  id: string; type: string; lat: number; lng: number; status: string;
 }
 
 function App() {
   const [buildings, setBuildings] = useState<Building[]>([])
-  const [error, setError] = useState('')
+  const [teams, setTeams] = useState<Team[]>([])
+  const [logs, setLogs] = useState<string[]>([])
+  const [simulating, setSimulating] = useState(false)
 
   useEffect(() => {
-    const fetchBuildings = async () => {
+    const fetchState = async () => {
       try {
-        const res = await fetch('http://localhost:8000/api/buildings')
-        if (!res.ok) throw new Error('API Error')
+        const res = await fetch('http://localhost:8000/api/state')
         const data = await res.json()
-        setBuildings(data)
-        setError('')
+        setBuildings(data.buildings)
+        setTeams(data.teams)
+        setLogs(data.logs)
       } catch (err) {
-        setError('Sunucu bağlantı hatası. Backend çalışıyor mu?')
+        console.error('Backend offline')
       }
     }
-
-    fetchBuildings()
-    const interval = setInterval(fetchBuildings, 1000)
-    return () => clearInterval(interval)
+    fetchState()
+    const int = setInterval(fetchState, 500)
+    return () => clearInterval(int)
   }, [])
 
+  const startSim = async () => {
+    setSimulating(true)
+    try {
+      await fetch('http://localhost:8000/api/simulate/start', { method: 'POST' })
+    } catch (e) {}
+    setTimeout(() => setSimulating(false), 30000)
+  }
+
   const getStatusColor = (status: string) => {
-    switch(status) {
-      case 'RED': return '#dc3545'
-      case 'YELLOW': return '#ffc107'
-      case 'GREEN': return '#198754'
-      default: return '#0d6efd'
-    }
+    if (status === 'RED') return '#dc3545'
+    if (status === 'YELLOW') return '#ffc107'
+    return '#198754'
+  }
+
+  const createTeamIcon = (type: string) => {
+    return L.divIcon({
+      className: 'custom-div-icon',
+      html: `<div style="background-color:${type==='AFAD'?'#e67e22':'#e74c3c'}; width:24px; height:24px; border-radius:50%; border:2px solid white; display:flex; justify-content:center; align-items:center; color:white; font-size:12px; font-weight:bold; box-shadow:0 2px 5px rgba(0,0,0,0.3);">${type === 'AFAD' ? 'A' : 'İ'}</div>`,
+      iconSize: [28, 28],
+      iconAnchor: [14, 14]
+    })
   }
 
   return (
-    <div className="dashboard">
-      <header className="header">
-        <h1>🚨 DAMSİS Görev Kontrol Merkezi</h1>
-        <p>Deprem Acil Müdahale ve Canlı Yapısal İzleme Sistemi</p>
-      </header>
+    <div className="dashboard-layout">
+      <div className="sidebar">
+        <h1 style={{color: '#dc3545', margin: '0 0 10px 0'}}>🚨 DAMSİS</h1>
+        <p style={{margin: '0 0 30px 0', color: '#6c757d', fontWeight: 'bold'}}>Acil Müdahale Simülatörü</p>
+        
+        <button onClick={startSim} disabled={simulating} className={`sim-btn ${simulating ? 'active' : ''}`}>
+          {simulating ? 'SİMÜLASYON ÇALIŞIYOR...' : '▶ SİMÜLASYONU BAŞLAT'}
+        </button>
 
-      {error && <div className="error-banner">⚠️ {error}</div>}
+        <div className="logs">
+          <h3>📡 Canlı Sistem Logları</h3>
+          <ul>
+            {logs.map((l, i) => (
+              <li key={i} className={l.includes('YIKILDI') ? 'log-danger' : l.includes('DEPREM') ? 'log-warning' : ''}>
+                {l}
+              </li>
+            ))}
+            {logs.length === 0 && <li style={{color: '#999'}}>Sistem hazır, simülasyonu başlatın.</li>}
+          </ul>
+        </div>
+      </div>
 
-      <div className="grid">
-        {buildings.map(b => (
-          <div key={b.id} className={`card ${b.status.toLowerCase()}`} style={{ borderTop: `5px solid ${getStatusColor(b.status)}` }}>
-            <div className="card-header">
-              <h2>{b.id} 
-                <span className="badge" style={{ backgroundColor: getStatusColor(b.status) }}>
-                  {b.status === 'RED' ? 'YIKILDI / ACİL' : b.status === 'YELLOW' ? 'RİSKLİ' : 'GÜVENLİ'}
-                </span>
-              </h2>
-            </div>
-            <div className="card-body">
-              <p><strong>📍 Konum:</strong> {b.address}</p>
-              <p><strong>🏢 Kat Sayısı:</strong> {b.floors}</p>
-              <p><strong>⏱️ Son Veri:</strong> {new Date(b.last_updated).toLocaleTimeString()}</p>
-              
-              <div className="residents-section">
-                <h3>Vatandaş Medikal Profili</h3>
-                <ul>
-                  {b.residents.map((r, i) => (
-                    <li key={i}>
-                      <span>{r.name} ({r.age})</span>
-                      {r.medical_info !== 'Yok' && <span className="medical-alert">🚑 {r.medical_info}</span>}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-          </div>
-        ))}
+      <div className="map-container">
+        <MapContainer center={[41.015, 28.960]} zoom={14} style={{ height: '100%', width: '100%' }}>
+          <TileLayer
+            url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
+            attribution='&copy; <a href="https://carto.com/">Carto</a>'
+          />
+          {buildings.map(b => (
+            <CircleMarker 
+              key={b.id} 
+              center={[b.lat, b.lng]} 
+              pathOptions={{ 
+                color: getStatusColor(b.status), 
+                fillColor: getStatusColor(b.status), 
+                fillOpacity: b.status === 'RED' ? 0.9 : 0.6 
+              }} 
+              radius={b.status === 'RED' ? 14 : 8}
+            >
+              <Popup>
+                <strong>{b.id}</strong><br/>
+                Durum: {b.status}<br/>
+                Adres: {b.address}
+              </Popup>
+            </CircleMarker>
+          ))}
+
+          {teams.map(t => (
+            <Marker key={t.id} position={[t.lat, t.lng]} icon={createTeamIcon(t.type)}>
+              <Popup>
+                <strong>{t.id} ({t.type})</strong><br/>
+                Durum: {t.status}
+              </Popup>
+            </Marker>
+          ))}
+        </MapContainer>
       </div>
     </div>
   )

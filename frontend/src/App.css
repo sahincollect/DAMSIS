@@ -1,136 +1,114 @@
 body {
   margin: 0;
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  background-color: #f8f9fa;
-  color: #212529;
-}
-
-.dashboard {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 2rem;
-}
-
-.header {
-  text-align: center;
-  margin-bottom: 3rem;
-}
-
-.header h1 {
-  margin: 0 0 0.5rem 0;
-  color: #212529;
-}
-
-.header p {
-  margin: 0;
-  color: #6c757d;
-  font-size: 1.1rem;
-}
-
-.error-banner {
-  background-color: #f8d7da;
-  color: #842029;
-  padding: 1rem;
-  border-radius: 0.5rem;
-  text-align: center;
-  margin-bottom: 2rem;
-  font-weight: bold;
-}
-
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-  gap: 1.5rem;
-}
-
-.card {
-  background: white;
-  border-radius: 0.75rem;
-  box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,0.075);
   overflow: hidden;
-  transition: transform 0.2s ease-in-out;
 }
 
-.card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.15);
-}
-
-.card.red {
-  background-color: #fff5f5;
-  animation: pulse-red 2s infinite;
-}
-
-@keyframes pulse-red {
-  0% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.4); }
-  70% { box-shadow: 0 0 0 10px rgba(220, 53, 69, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0); }
-}
-
-.card-header {
-  padding: 1.25rem;
-  border-bottom: 1px solid #dee2e6;
-}
-
-.card-header h2 {
-  margin: 0;
-  font-size: 1.25rem;
+.dashboard-layout {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  height: 100vh;
+  width: 100vw;
 }
 
-.badge {
-  font-size: 0.75rem;
-  padding: 0.35em 0.65em;
-  border-radius: 0.25rem;
+.sidebar {
+  width: 400px;
+  background-color: #1a1d20;
   color: white;
-  font-weight: 700;
+  padding: 25px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 4px 0 15px rgba(0,0,0,0.5);
+  z-index: 1000;
 }
 
-.card-body {
-  padding: 1.25rem;
+.map-container {
+  flex: 1;
+  position: relative;
+  background-color: #e5e3df; /* Map fallback color */
 }
 
-.card-body p {
-  margin: 0.5rem 0;
+.sim-btn {
+  background-color: #0d6efd;
+  color: white;
+  border: none;
+  padding: 16px;
+  border-radius: 8px;
+  font-weight: bold;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-bottom: 30px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
-.residents-section {
-  margin-top: 1.5rem;
-  padding-top: 1.25rem;
-  border-top: 1px solid #dee2e6;
+.sim-btn:hover:not(:disabled) {
+  background-color: #0b5ed7;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(13, 110, 253, 0.4);
 }
 
-.residents-section h3 {
-  margin: 0 0 1rem 0;
-  font-size: 1rem;
-  color: #495057;
+.sim-btn.active {
+  background-color: #198754;
+  cursor: not-allowed;
+  animation: pulse-green 2s infinite;
 }
 
-.residents-section ul {
+@keyframes pulse-green {
+  0% { box-shadow: 0 0 0 0 rgba(25, 135, 84, 0.6); }
+  70% { box-shadow: 0 0 0 15px rgba(25, 135, 84, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(25, 135, 84, 0); }
+}
+
+.logs {
+  flex: 1;
+  background-color: #212529;
+  border-radius: 8px;
+  padding: 15px;
+  overflow-y: auto;
+  border: 1px solid #343a40;
+}
+
+.logs h3 {
+  margin-top: 0;
+  color: #adb5bd;
+  font-size: 0.95rem;
+  border-bottom: 1px solid #343a40;
+  padding-bottom: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.logs ul {
   list-style: none;
   padding: 0;
   margin: 0;
 }
 
-.residents-section li {
-  padding: 0.5rem 0;
-  border-bottom: 1px solid #f8f9fa;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+.logs li {
+  font-family: 'Consolas', 'Courier New', monospace;
+  font-size: 0.85rem;
+  padding: 10px 0;
+  border-bottom: 1px solid #343a40;
+  color: #e9ecef;
+  line-height: 1.4;
 }
 
-.residents-section li:last-child {
+.logs li:last-child {
   border-bottom: none;
 }
 
-.medical-alert {
-  color: #dc3545;
-  font-size: 0.875rem;
-  font-weight: 600;
-  background: #fff0f0;
-  padding: 0.2rem 0.5rem;
-  border-radius: 0.25rem;
+.log-warning {
+  color: #ffc107 !important;
+  font-weight: bold;
+}
+
+.log-danger {
+  color: #ff6b6b !important;
+  font-weight: bold;
+}
+
+.custom-div-icon {
+  background: transparent;
+  border: none;
 }

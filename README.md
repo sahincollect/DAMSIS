@@ -64,29 +64,23 @@ DAMSİS 3 ana katmandan oluşmaktadır:
 
 Harvard CS standartlarında bir MVP (Minimum Viable Product) olarak tasarlanan bu repo, donanıma ihtiyaç duymadan sistemi test edebilmeniz için bir simülasyon ortamı içerir.
 
-### 1. Backend (FastAPI Sunucusu)
-Binaların durumunu ve sensör verilerini işleyen ana sunucu.
+### 1. Backend (FastAPI + Simülasyon Motoru)
+Binaların durumunu, sensör verilerini ve kurtarma ekiplerinin (İtfaiye, AFAD) konumlarını anlık olarak hesaplayan ana sunucu.
 ```bash
 cd backend
 pip install -r requirements.txt
 uvicorn main:app --reload --port 8000
 ```
 
-### 2. Frontend (React Dashboard)
-Arama kurtarma ekiplerinin gördüğü canlı kriz yönetim paneli.
+### 2. Frontend (React + Leaflet Harita Paneli)
+Arama kurtarma ekiplerinin gördüğü, harita tabanlı canlı kriz yönetim paneli.
 ```bash
 cd frontend
 npm install
 npm run dev
 ```
 
-### 3. IoT Sensör Simülatörü
-Deprem anını ve donanımdan gelen ivmeölçer verilerini simüle eden Python betiği. Backend çalıştıktan sonra yeni bir terminalde çalıştırın:
-```bash
-cd iot_simulator
-python simulate.py
-```
-*Not: Simülatör çalıştığında B002 numaralı bina 10 saniye sonra "Yıkım" sinyali gönderecek ve frontend panelinde bu bina otomatik olarak Kırmızıya (Acil Durum) dönecektir.*
+*Not: Uygulamayı açtıktan sonra sol menüdeki **"SİMÜLASYONU BAŞLAT"** butonuna basarak Fatih bölgesindeki 20 binanın deprem anındaki davranışını, binaların yıkılmasını ve ardından AFAD/İtfaiye ekiplerinin otomatik olarak enkazlara yönlendirilmesini harita üzerinde canlı izleyebilirsiniz.*
 
 ## 🤝 Katkıda Bulunma
 Bu proje açık kaynaklı bir sosyal sorumluluk ve acil durum teknolojisi projesidir. Pull request'ler (PR), hata bildirimleri (issues) ve yeni fikirler her zaman memnuniyetle karşılanır.
