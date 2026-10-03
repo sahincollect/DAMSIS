@@ -1,89 +1,84 @@
-# DAMSİS (Deprem Acil Müdahale Sistemi) 🌍📡
+# DAMSİS: Deprem Acil Müdahale Sistemi
 
-DAMSİS, olası yıkıcı depremlerde arama-kurtarma ekiplerinin nokta atışı yönlendirilmesini sağlayan, IoT tabanlı bir acil müdahale ve kriz yönetimi sistemidir. 
+Depremde yıkılan binaları sensörlerle tespit edip arama-kurtarma ekiplerini otomatik yönlendiren bir acil müdahale sisteminin etkileşimli simülasyonu.
 
-Binaların yapısal bütünlüğünü anlık olarak izleyerek, yıkım veya kritik hasar durumunda kurtarma ekiplerinin canlı haritalarına uyarı gönderir. Aynı zamanda enkaz altındaki vatandaşların hayati medikal bilgilerini (kronik hastalık, kullanılan ilaçlar vb.) sağlık ekiplerine ulaştırarak ilk yardımın hızını ve verimliliğini artırır.
+Proje, ortaokulda geliştirdiğim bir fikir olarak başladı. Bu depo fikrin yeniden tasarlanmış ve çalışan bir simülasyonunu içerir.
 
----
+## Simülasyonu çalıştırma
 
-## 🚨 Problem
+Backend gerekmez; simülasyon tamamen tarayıcıda çalışır.
 
-Özellikle beklenen büyük İstanbul depremi gibi senaryolarda, binaların yenilenme hızının yetersiz kalacağı öngörülmektedir. Geçmiş depremlerde (örneğin Kahramanmaraş depreminde) görüldüğü üzere, en büyük sorunlardan biri **iletişim kopukluğu** ve **koordinasyon eksikliğidir**. 
-
-* Arama kurtarma ekipleri, hangi binanın yıkıldığına dair net ihbar alamadığı için sahada körlemesine keşif yapmak zorunda kalmaktadır.
-* Gözden kaçan veya geç fark edilen yıkıntılarda, hava şartları veya müdahale gecikmesi sebebiyle can kayıpları artmaktadır.
-* Sağlık ekipleri, enkaz altındaki kişilerin özel durumlarını (diyabet, kalp hastası vb.) bilmediği için olay yerine standart ekipmanla gitmekte, bu da spesifik müdahaleleri geciktirmektedir.
-
-## 💡 Çözüm: DAMSİS Nasıl Çalışır?
-
-1. **Donanım Yerleşimi:** Binaların ana taşıyıcı kolonlarına ivmeölçer, jiroskop ve haberleşme modülü içeren DAMSİS cihazları yerleştirilir.
-2. **Eksen ve Stabilite Kalibrasyonu:** Cihaz, monte edildiği kolonun standart eksenini ve eğimini referans olarak kaydeder.
-3. **Anlık İzleme ve Yıkım Tespiti:** Deprem anında, kolonun eksenindeki ani ve geri dönülemez değişimler (eğilme, göçme, çökme) cihaz tarafından algılanır.
-4. **Acil Durum Sinyali:** Yıkım veya kritik eşik aşıldığında, cihaz doğrudan arama-kurtarma merkezlerindeki **Canlı Kriz Haritasına** SOS sinyali gönderir.
-5. **Bina ve Sakin Verisi:** Sinyalle birlikte; binanın kat sayısı, daire sayısı, içeride yaşayan vatandaşların listesi ve acil tıbbi gereksinimleri (kullandıkları ilaçlar, kan grupları) doğrudan AFAD, UMKE ve ambulans ekiplerinin ekranına düşer.
-
----
-
-## ✨ Yeni ve Gelişmiş Özellikler (V2)
-
-Ortaokul projesinin üzerine eklenen modern mühendislik yaklaşımları:
-
-* 📶 **Alternatif İletişim Protokolleri (LoRaWAN & Mesh):** Deprem anında hücresel ağların (GSM/İnternet) çökmesi ihtimaline karşı, cihazlar LoRaWAN veya binalar arası Mesh ağı (BLE/Wi-Fi) üzerinden haberleşerek ana merkeze veriyi ulaştırır.
-* 🔋 **Enerji Bağımsızlığı:** Şebeke elektriği kesilse bile cihazın günlerce çalışabilmesi için Lityum-Polimer (Li-Po) batarya ve uyku modu yönetimi. 
-* 🧠 **Yapay Zeka ile Hasar Tahmini:** Sadece yıkılma anını değil, deprem sırasındaki sarsıntı ivmesini analiz ederek binanın doğal frekansındaki bozulmayı (gizli hasarı) makine öğrenmesi ile tespit etme.
-* 📍 **Enkaz Altı Sinyalizasyon (Beacon):** Bina tamamen çökerse ve dış dünyayla iletişim kopsa bile, cihazın Bluetooth Low Energy (BLE) beacon moduna geçerek enkaz üstünde arama yapan ekiplerin cihazlarına (veya dronelara) "Buradayım" sinyali yayması.
-
----
-
-## 🛠️ Sistem Mimarisi
-
-DAMSİS 3 ana katmandan oluşmaktadır:
-
-### 1. Edge Katmanı (IoT Cihazı)
-* **Sensörler:** MPU6050 (6 Eksen İvmeölçer ve Jiroskop)
-* **Mikrodenetleyici:** ESP32 veya STM32 (Düşük güç tüketimi ve Wi-Fi/Bluetooth/LoRa desteği)
-* **Güç:** Şebeke + Li-Po Batarya (BMS ile şarj kontrolü)
-
-### 2. Bulut / Backend Katmanı
-* **Haberleşme:** MQTT veya CoAP protokolleri.
-* **Veritabanı:** 
-  * *Zaman Serisi (Time-series):* Sensör ivme verileri için (örn. InfluxDB, TimescaleDB).
-  * *İlişkisel/NoSQL:* Bina ve vatandaş profilleri için (örn. PostgreSQL, Firebase/Firestore).
-* **API:** Verileri işleyen ve doğrulayan Node.js / Python (FastAPI) sunucusu.
-
-### 3. Frontend / Arama Kurtarma Dashboard'u
-* **Harita Entegrasyonu:** React.js ve Mapbox/Leaflet kullanılarak geliştirilmiş, canlı güncellenen şehir haritası.
-* **Renk Kodlaması:**
-  * 🟢 **Yeşil:** Bina sağlam, eksen sapması yok.
-  * 🟡 **Sarı:** Kritik yapısal sarsıntı/eğim (Riskli bina, gizli hasar olabilir).
-  * 🔴 **Kırmızı:** Tam çökme veya aşırı devrilme tespit edildi (Acil müdahale ekibi sevk ediliyor).
-
----
-
-## 🚀 Kurulum ve Çalıştırma (Simülasyon Ortamı)
-
-Harvard CS standartlarında bir MVP (Minimum Viable Product) olarak tasarlanan bu repo, donanıma ihtiyaç duymadan sistemi test edebilmeniz için bir simülasyon ortamı içerir.
-
-### 1. Backend (FastAPI + Simülasyon Motoru)
-Binaların durumunu, sensör verilerini ve kurtarma ekiplerinin (İtfaiye, AFAD) konumlarını anlık olarak hesaplayan ana sunucu.
-```bash
-cd backend
-pip install -r requirements.txt
-uvicorn main:app --reload --port 8000
-```
-
-### 2. Frontend (React + Leaflet Harita Paneli)
-Arama kurtarma ekiplerinin gördüğü, harita tabanlı canlı kriz yönetim paneli.
 ```bash
 cd frontend
 npm install
 npm run dev
 ```
 
-*Not: Uygulamayı açtıktan sonra sol menüdeki **"SİMÜLASYONU BAŞLAT"** butonuna basarak Fatih bölgesindeki 20 binanın deprem anındaki davranışını, binaların yıkılmasını ve ardından AFAD/İtfaiye ekiplerinin otomatik olarak enkazlara yönlendirilmesini harita üzerinde canlı izleyebilirsiniz.*
+Sonra `http://localhost:5173` adresini açın. Node.js 20.19+ veya 22.12+ gerekir (Vite 8 gereksinimi).
 
-## 🤝 Katkıda Bulunma
-Bu proje açık kaynaklı bir sosyal sorumluluk ve acil durum teknolojisi projesidir. Pull request'ler (PR), hata bildirimleri (issues) ve yeni fikirler her zaman memnuniyetle karşılanır.
+Depo GitHub Pages'e yayınlanacak şekilde yapılandırılmıştır (`.github/workflows/deploy.yml`). Repo ayarlarında **Settings → Pages → Source: GitHub Actions** seçildiğinde her `main` push'unda yayınlanır.
 
----
-*DAMSİS, teknolojinin hayat kurtardığı bir gelecek için tasarlanmıştır.*
+## Problem
+
+Büyük depremlerde (ör. 2023 Kahramanmaraş) birçok bina yıkılır ve iletişim altyapısı çöker. Arama-kurtarma ekipleri hangi binanın yıkıldığına dair ihbar alamadığında yalnızca görebildikleri enkazlara gidebilir. Enkaz altındaki kişilerin sağlık durumu da ekipler yola çıkarken bilinmez.
+
+## Fikir
+
+1. Binanın taşıyıcı kolonuna ivmeölçer ve haberleşme modülü içeren bir cihaz takılır. Cihaz, kolonun normal eksenini referans olarak kaydeder.
+2. Deprem sırasında ivme ve eksen eğimi izlenir. Eşik aşımı "izlemede", "kritik" ve "yıkıldı" durumlarını üretir.
+3. Bildirim, GSM çalışmıyorsa LoRa mesh hattıyla komuta merkezine gider. Bina çökerse cihaz BLE beacon moduna geçer.
+4. Komuta merkezi yıkılan binayı canlı haritada gösterir ve en yakın uygun ekipleri atar.
+5. Cihaza kayıtlı kat sayısı ve sakinlerin sağlık bilgileri (hastalık, ilaç) ambulansa ekipman önerisi olarak iletilir.
+
+## Simülasyonda neler var
+
+- Üç senaryo: Mw 6.5, 7.2 ve 7.8. Her senaryo sabit bir tohumla üretilir, aynı senaryo her seferinde aynı sonucu verir.
+- Fatih (İstanbul) çevresinde 42 kurgusal bina; yapım yılı, kat sayısı ve yapısal kırılganlık değerleriyle.
+- Zaman çizelgesi: P dalgası uyarısı, ana sarsıntı, GSM kesintisi, artçı şok.
+- Binalar zemin ivmesine göre hasar biriktirir. Durum komuta merkezine bağlantı gecikmesiyle (GSM veya LoRa) ulaşır.
+- 16 ekip: AFAD, UMKE, İtfaiye ve Ambulans. Ekipler öncelik sırasına göre otomatik atanır. Yoldaki ekipler gerekirse yeniden yönlendirilir.
+- Öncelik puanı: enkaz altındaki tahmini kişi sayısı, kronik hastalığı olan kayıtlı sakin sayısı, kat sayısı ve bekleme süresi.
+- Canlı sismograf, olay günlüğü, ekip listesi, bina detayı (sakin profilleri, önerilen ambulans ekipmanı) ve operasyon özeti.
+
+## Model varsayımları ve sınırlar
+
+Bu bir mühendislik doğrulaması değildir.
+
+- Hasar modeli basittir: yerel zemin ivmesi, binanın eşik değerini aştıkça hasar birikir. Gerçek yapı davranışını (rezonans, kolon-kiriş detayları, zemin sıvılaşması) modellemez.
+- Zemin ivmesi merkez üssüne uzaklıkla üstel olarak azalır; parametreler bu simülasyon için ayarlanmıştır.
+- Ekipler 40 km/sa hızla düz hat üzerinde ilerler; yol ağı ve trafik yoktur.
+- Ana sarsıntı sonrası saat ×16 hızlandırılır. Ekranda görünen süreler senaryo zamanıdır.
+- Bina, sakin, ekip ve sağlık verileri rastgele üretilmiştir.
+- Harita altlığı OpenStreetMap'ten gelir; tema CSS ile koyulaştırılmıştır.
+
+## Mimari
+
+```
+frontend/            React + TypeScript + Vite + Leaflet
+  src/sim/           Simülasyon motoru (UI'dan bağımsız)
+    engine.ts          zaman çizelgesi, hasar, bildirim gecikmesi, sevk, kurtarma
+    data.ts            senaryolar, bina/sakin/ekip üretimi
+    types.ts           ortak tipler
+  src/components/    Harita, paneller, katmanlar
+backend/             Referans telemetri API'si (FastAPI), simülasyon için gerekmez
+```
+
+`backend/` klasörü, gerçek bir cihazdan gelen ivme verisini alıp bina durumunu hesaplayan basit bir örnek içerir:
+
+```bash
+cd backend
+pip install -r requirements.txt
+uvicorn main:app --reload --port 8000
+```
+
+## Yol haritası (uygulanmadı)
+
+- Donanım prototipi: ESP32 + MPU6050, LoRa modülü, batarya yönetimi.
+- Gerçek sensör verisiyle eşik kalibrasyonu ve yanlış alarm analizi.
+- Binanın doğal frekans değişiminden gizli hasar tespiti.
+- Gerçek yol ağı üzerinden rota hesabı.
+- Kişisel sağlık verisi için KVKK uyumu, rıza yönetimi ve şifreli saklama. Bu veri türü gerçek bir dağıtımda en hassas bileşendir.
+
+## Lisans
+
+Henüz bir lisans seçilmedi.
